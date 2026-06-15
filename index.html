@@ -1822,7 +1822,7 @@ async function importPhoto(input){
   const st=document.getElementById('photo-status'); st.textContent='Reading photo...'; st.classList.add('show');
   const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:b64}},{type:'text',text:'Extract recipe. ONLY JSON: {"name":"","cat":"Dinner or Breakfast or Lunch or Snack","tags":[],"ingredients":[{"name":"","qty":1,"unit":""}],"prepTags":[]}\nOnly prepTags: chop produce, make sauce/dressing, marinate, cook ahead, portion protein, double batch'}]}]})});
+    const resp=await fetch('/.netlify/functions/import-photo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({b64,mediaType:file.type||'image/jpeg'})});
     const data=await resp.json();
     const r=JSON.parse(data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim());
     r.id='p'+Date.now(); r.url=''; const lib=S.lib; lib.push(r); S.lib=lib;
