@@ -194,7 +194,24 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);bo
       <button class="btn" onclick="authSignUp()">Sign up</button>
       <button class="btn primary" onclick="authSignIn()">Sign in</button>
     </div>
+    <div style="text-align:center;margin-top:.6rem">
+      <a href="#" style="font-size:12px;color:var(--text-mid)" onclick="authForgotPassword();return false">Forgot password?</a>
+    </div>
     <div class="ai-status" id="auth-status"></div>
+  </div>
+</div>
+
+<div class="auth-overlay hidden" id="reset-overlay">
+  <div class="auth-card">
+    <h1>Reset Password</h1>
+    <div class="auth-field">
+      <label for="reset-password">New password</label>
+      <input type="password" id="reset-password" placeholder="••••••••">
+    </div>
+    <div class="auth-actions">
+      <button class="btn primary" onclick="authUpdatePassword()">Update password</button>
+    </div>
+    <div class="ai-status" id="reset-status"></div>
   </div>
 </div>
 
@@ -624,6 +641,23 @@ async function authSignOut(){
   await sb.auth.signOut();
 }
 
+async function authForgotPassword(){
+  const email=document.getElementById('auth-email').value.trim();
+  if(!email) return showAuthError('Enter your email first, then click "Forgot password?"');
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});
+  if(error) return showAuthError(error.message);
+  showAuthError('Password reset email sent — check your inbox.');
+}
+
+async function authUpdatePassword(){
+  const password=document.getElementById('reset-password').value;
+  const st=document.getElementById('reset-status');
+  if(!password){ st.textContent='Enter a new password.'; st.classList.add('show'); return; }
+  const {error}=await sb.auth.updateUser({password});
+  if(error){ st.textContent=error.message; st.classList.add('show'); return; }
+  document.getElementById('reset-overlay').classList.add('hidden');
+}
+
 async function checkApproval(){
   let {data:profile}=await sb.from('profiles').select('approved').eq('id',_currentUser.id).maybeSingle();
   if(!profile){
@@ -646,6 +680,11 @@ async function startApp(){
 }
 
 sb.auth.onAuthStateChange((event,session)=>{
+  if(event==='PASSWORD_RECOVERY'){
+    document.getElementById('auth-overlay').classList.add('hidden');
+    document.getElementById('reset-overlay').classList.remove('hidden');
+    return;
+  }
   if(session&&session.user){
     _currentUser=session.user;
     startApp();
