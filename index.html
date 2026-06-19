@@ -380,7 +380,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);bo
   <!-- Staples confirm card -->
   <div class="card" id="staples-confirm-card" style="display:none;border:1.5px solid var(--blue-mid);background:var(--blue-light)">
     <div class="card-title" style="color:var(--blue-dark)">
-      <i class="ti ti-basket"></i> Add staples to this week\'s list?
+      <i class="ti ti-basket"></i> Add staples to this week's list?
     </div>
     <p style="font-size:12px;color:var(--text-mid);margin-bottom:.7rem">
       Check the staples you want included — uncheck anything you already have.
@@ -1021,23 +1021,17 @@ function renderMealPicker(){
 function assignRecipe(id){
   const r=S.lib.find(x=>x.id===id); if(!r) return;
   const w=wk();
-  if(r.cat==='Dinner'){
-    const i=w.dinners.findIndex(d=>!d.id);
-    if(i>-1){w.dinners[i].id=id;}
-    else{
-      // Try extras
-      const ei=(w.extras||[]).findIndex(e=>!e.id);
-      if(ei>-1){w.extras[ei].id=id;}
-      else{w.extras=w.extras||[];w.extras.push({id,doubled:true});}
-    }
-  } else if(r.cat==='Breakfast'){
-    if(!w.breakfast.id) w.breakfast.id=id;
-    else{w.extras=w.extras||[];const ei=w.extras.findIndex(e=>!e.id);if(ei>-1)w.extras[ei].id=id;else w.extras.push({id,doubled:true});}
-  } else if(r.cat==='Lunch'){
-    if(!w.lunch.id) w.lunch.id=id;
-    else{w.extras=w.extras||[];const ei=w.extras.findIndex(e=>!e.id);if(ei>-1)w.extras[ei].id=id;else w.extras.push({id,doubled:false,day:''});}
+  const di=w.dinners.findIndex(d=>!d.id);
+  if(di>-1){
+    w.dinners[di].id=id;
+  } else if(!w.breakfast.id){
+    w.breakfast.id=id;
+  } else if(!w.lunch.id){
+    w.lunch.id=id;
   } else {
-    w.extras=w.extras||[];const ei=w.extras.findIndex(e=>!e.id);if(ei>-1)w.extras[ei].id=id;else w.extras.push({id,doubled:false});
+    w.extras=w.extras||[];
+    const ei=w.extras.findIndex(e=>!e.id);
+    if(ei>-1) w.extras[ei].id=id; else w.extras.push({id,doubled:false});
   }
   saveWk(); renderMeals();
 }
@@ -1345,7 +1339,6 @@ function showAnyList(){
   });
 
   const lines=[];
-  lines.push('The Efficient Kitchen \u2014 '+wkLabel());
   lines.push('');
   CAT_ORDER.forEach(cat=>{
     const catItems=byCat[cat]; if(!catItems||!catItems.length) return;
