@@ -807,7 +807,7 @@ function renderSchedule(){
 
     // Events list
     const evList=document.createElement('div'); evList.className='cal-events'; evList.id='evlist-'+dn;
-    const events=w.events[dn]||[];
+    const events=(w.events[dn]||[]).slice().sort((a,b)=>(a.time||'').localeCompare(b.time||''));
     events.forEach((ev,ei)=>{
       const chip=document.createElement('div'); chip.className='event-chip';
       const tspan=document.createElement('span'); tspan.className='ev-time'; tspan.textContent=ev.time||'';
@@ -1509,7 +1509,7 @@ function generatePDF(){
       const cw=COL_W-1;
       setFill(doc,PINK);doc.roundedRect(cx,schedTop+0.5,cw,SCHED_H-1,1,1,'F');
       const dn=DAYS_OF_WEEK[d.getDay()];
-      const evs=(w.events[dn]||[]).map(e=>(e.time?e.time+' ':'')+e.text).join('\n');
+      const evs=(w.events[dn]||[]).slice().sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(e=>(e.time?e.time+' ':'')+e.text).join('\n');
       if(evs){
         doc.setFont('helvetica','normal');doc.setFontSize(10);
         setTxt(doc,TEXT);
